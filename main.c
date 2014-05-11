@@ -19,8 +19,9 @@ int main(int argc,char** argv)
 {
     const char* to[] = {"yanjiujun@gmail.com","254659936@qq.com"};
     int to_len = 1;
-    //smtp_send("smtp.163.com",25,"sanguoshenxian@163.com","ada-sgsx","mysubject","mycontent",to,to_len);
-    smtp_send("smtp.qq.com",25,"465444136@qq.com","yanju2013","mysubject","mycontent",to,to_len);
+
+    // 这里需要替换程真实的邮箱账户
+    smtp_send("smtp.163.com",25,"username@163.com","password","mysubject","mycontent",to,to_len);
 
     return EXIT_SUCCESS;
 }
