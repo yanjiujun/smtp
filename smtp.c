@@ -316,10 +316,9 @@ static char* smtp_time(char* buffer)
     struct tm t;
     localtime_r(&t2,&t);
 
-    static char* week[] = {"Sun" , "Mon" , "Tue" , "Wed" , "Thu" , "Fri" , "Sat"};
-    static char* month[] = {"Jan" , "Feb" , "Mar" , "Apr" , "May" , "Jun" , "Jul" , "Aug" , "Sep" , "Oct" , "Nov" , "Dec"};
-    sprintf(buffer,"%s, %02d %s %04d %02d:%02d:%02d %s%02d%2d",week[t.tm_wday],t.tm_mday,month[t.tm_mon],
-                 t.tm_year + 1900,t.tm_hour,t.tm_min,t.tm_sec,t.__tm_gmtoff >= 0? "+":"-",t.__tm_gmtoff / 3600);
+    // RFC 5322 date-time section 3.3.
+    strftime(buffer, 32, "%a, %d %b %Y %H:%M:%S %z", &t);
+
     return buffer;
 }
 
