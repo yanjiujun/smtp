@@ -355,7 +355,7 @@ static int send_mail(struct smtp* sm)
     {
         pos += sprintf(&header[pos],"To: %s\r\n",sm->to[i]);
     }
-    pos += sprintf(&header[pos],"From: %s<%s>\r\n",sm->user_name,sm->user_name);
+    pos += sprintf(&header[pos],"From: \"%s\" <%s>\r\n",sm->user_name,sm->user_name);
     pos += sprintf(&header[pos],"Subject: %s\r\n",sm->subject);
     pos += sprintf(&header[pos],"Message-ID: <%d.%s>\r\n",time(NULL),sm->user_name);
 
