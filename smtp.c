@@ -362,6 +362,9 @@ static int send_mail(struct smtp* sm)
     char date[100];
     pos += sprintf(&header[pos],"Date: %s\r\n",smtp_time(date));
 
+    // Must have blank line after header, before message body.
+    pos += sprintf(&header[pos],"\r\n");
+
     if(smtp_write(sm->socket,header,pos)) return SMTP_ERROR_WRITE;
     if(smtp_write(sm->socket,sm->content,strlen(sm->content))) return SMTP_ERROR_WRITE;
     if(smtp_write(sm->socket,"\r\n.\r\n",strlen("\r\n.\r\n"))) return SMTP_ERROR_WRITE;
