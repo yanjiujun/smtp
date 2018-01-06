@@ -374,7 +374,7 @@ static int send_mail(struct smtp* sm)
 
 static int quit(struct smtp* sm)
 {
-    if(smtp_write(sm->socket,"QUIT \r\n",strlen("QUIT \r\n"))) return SMTP_ERROR_WRITE;
+    if(smtp_write(sm->socket,"QUIT\r\n",strlen("QUIT\r\n"))) return SMTP_ERROR_WRITE;
     if(smtp_read(sm) || strcmp(sm->cmd,"221")) return SMTP_ERROR_READ;
 
     sm->status = SMTP_STATUS_NULL;
