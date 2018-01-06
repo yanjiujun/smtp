@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
 #include <sys/socket.h>
 #include <time.h>
 #include <unistd.h>
@@ -316,10 +317,9 @@ static char* smtp_time(char* buffer)
     struct tm t;
     localtime_r(&t2,&t);
 
-    static char* week[] = {"Sun" , "Mon" , "Tue" , "Wed" , "Thu" , "Fri" , "Sat"};
-    static char* month[] = {"Jan" , "Feb" , "Mar" , "Apr" , "May" , "Jun" , "Jul" , "Aug" , "Sep" , "Oct" , "Nov" , "Dec"};
-    sprintf(buffer,"%s, %02d %s %04d %02d:%02d:%02d %s%02d%2d",week[t.tm_wday],t.tm_mday,month[t.tm_mon],
-                 t.tm_year + 1900,t.tm_hour,t.tm_min,t.tm_sec,t.__tm_gmtoff >= 0? "+":"-",t.__tm_gmtoff / 3600);
+    // RFC 5322 date-time section 3.3.
+    strftime(buffer, 32, "%a, %d %b %Y %H:%M:%S %z", &t);
+
     return buffer;
 }
 
@@ -356,12 +356,15 @@ static int send_mail(struct smtp* sm)
     {
         pos += sprintf(&header[pos],"To: %s\r\n",sm->to[i]);
     }
-    pos += sprintf(&header[pos],"From: %s<%s>\r\n",sm->user_name,sm->user_name);
+    pos += sprintf(&header[pos],"From: \"%s\" <%s>\r\n",sm->user_name,sm->user_name);
     pos += sprintf(&header[pos],"Subject: %s\r\n",sm->subject);
     pos += sprintf(&header[pos],"Message-ID: <%d.%s>\r\n",time(NULL),sm->user_name);
 
     char date[100];
     pos += sprintf(&header[pos],"Date: %s\r\n",smtp_time(date));
+
+    // Must have blank line after header, before message body.
+    pos += sprintf(&header[pos],"\r\n");
 
     if(smtp_write(sm->socket,header,pos)) return SMTP_ERROR_WRITE;
     if(smtp_write(sm->socket,sm->content,strlen(sm->content))) return SMTP_ERROR_WRITE;
@@ -375,7 +378,7 @@ static int send_mail(struct smtp* sm)
 
 static int quit(struct smtp* sm)
 {
-    if(smtp_write(sm->socket,"QUIT \r\n",strlen("QUIT \r\n"))) return SMTP_ERROR_WRITE;
+    if(smtp_write(sm->socket,"QUIT\r\n",strlen("QUIT\r\n"))) return SMTP_ERROR_WRITE;
     if(smtp_read(sm) || strcmp(sm->cmd,"221")) return SMTP_ERROR_READ;
 
     sm->status = SMTP_STATUS_NULL;
